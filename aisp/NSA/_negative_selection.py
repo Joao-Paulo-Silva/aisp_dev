@@ -89,10 +89,18 @@ class RNSA(Base):
         * classes (``npt.NDArray``): lista com as classes de saída.
     """
 
-    def __init__(self, N: int = 100, r: float = 0.05, r_s: float = 0.0001, k: int = 1,
-                 metric: Literal["manhattan", "minkowski", "euclidean"] = "euclidean", max_discards: int = 1000,
-                 seed: int = None, algorithm: Literal["default-NSA", "V-detector"] = "default-NSA",
-                 **kwargs: Dict[str, Union[bool, str, float]]):
+    def __init__(
+            self,
+            N: int = 100,
+            r: float = 0.05,
+            r_s: float = 0.0001,
+            k: int = 1,
+            metric: Literal["manhattan", "minkowski", "euclidean"] = "euclidean",
+            max_discards: int = 1000,
+            seed: int = None,
+            algorithm: Literal["default-NSA", "V-detector"] = "default-NSA",
+            **kwargs: Dict[str, Union[bool, str, float]]
+    ):
         """
         Negative Selection class constructor (``RNSA``).
 
