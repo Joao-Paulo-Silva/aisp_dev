@@ -27,6 +27,9 @@ jobs:
     - name: ✅ Run lint
       run: |
         pylint $(git ls-files '*.py')
+    
+    - name: 🧪 Run tests
+      run: pytest
 
     - name: 🔧 Test build
       run: python -m build
