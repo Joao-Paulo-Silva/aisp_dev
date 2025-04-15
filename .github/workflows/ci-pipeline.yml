@@ -1,20 +1,19 @@
 name: Python CI - Lint, Test, Build
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8.10", "3.9", "3.10"]
+        python-version: ["3.9", "3.10"]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: ⚙️ Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
@@ -35,4 +34,3 @@ jobs:
     - name: 🚀 Test install from built package
       run: |
         pip install dist/*.whl
-    
