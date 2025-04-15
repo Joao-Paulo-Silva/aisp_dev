@@ -1,4 +1,4 @@
-name: Python CI - Lint, Test, Build
+name: Python CI - lint, test, build and install
 
 on:
   pull_request:
@@ -24,7 +24,7 @@ jobs:
         pip install -r requirements.txt
         pip install pylint pytest build
 
-    - name: ✅ Run pylint
+    - name: ✅ Run lint
       run: |
         pylint $(git ls-files '*.py')
 
@@ -34,3 +34,4 @@ jobs:
     - name: 🚀 Test install from built package
       run: |
         pip install dist/*.whl
+    
