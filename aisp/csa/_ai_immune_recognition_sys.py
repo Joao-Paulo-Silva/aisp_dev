@@ -165,13 +165,14 @@ class _ABR(_Cell):
         """
         Updates the amount of resources available for an ABR after consumption.
 
-        This function consumes the resources and returns the remaining amount of resources after consumption.
+        This function consumes the resources and returns the remaining amount of resources after 
+        consumption.
 
         Parameters:
         ---
         - resource (``float``): Initial amount of resources.
-        - amplified (``float``): Amplifier for the resource consumption by the cell. It is multiplied \
-            by the cell's stimulus. The default value is 1.
+        - amplified (``float``): Amplifier for the resource consumption by the cell. It is 
+            multiplied by the cell's stimulus. The default value is 1.
 
         Returns:
         - (``float``): The remaining amount of resources after consumption.
@@ -185,7 +186,7 @@ class _ABR(_Cell):
         Parameters:
         ---
         * resource (``float``): Quantidade inicial de recursos.
-        * amplified (``float``): Amplificador para o consumo de recursos pela célula. É multiplicado \
+        * amplified (``float``): Amplificador para o consumo de recursos pela célula. É multiplicado
             pelo estímulo da célula. O valor padrão é 1.
 
         Returns:
@@ -236,49 +237,50 @@ class AIRS(BaseClassifier):
     ) -> None:
         """ Artificial Immune Recognition System (AIRS)
 
-        Details:
+        Details
         ---
-            The AIRS is a classification algorithm inspired by the clonal selection process. The \
-            version implemented in this class is inspired by its simplified version, AIRS2, described in \
-            [Brabazon, O'Neill, and McGarraghy (2015)](https://doi.org/10.1007/978-3-662-43631-8). \
-            In this class, there is an adaptation for real-valued data and a secondary option for binary \
-            features.
+        The AIRS is a classification algorithm inspired by the clonal selection process. The \
+        version implemented in this class is inspired by its simplified version, AIRS2,
+        described in \
+        [Brabazon, O'Neill, and McGarraghy (2015)](https://doi.org/10.1007/978-3-662-43631-8). \
+        In this class, there is an adaptation for real-valued data and a secondary option for 
+        binary features.
         
-        Parameters:
+        Parameters
         ---
-            * n_resources (``float``): Total amount of available resources. Defaults to 10.
-            * rate_clonal (``float``): Maximum number of possible clones of a class. This \
-                quantity is multiplied by (cell stimulus * rate_hypermutation) to define the number of \
-                clones. Defaults to 10.
-            * rate_hypermutation (``int``): The rate of mutated clones derived from rate_clonal as a \
-                scalar factor. Defaults to 0.75.
-            * affinity_threshold_scalar (``float``): Normalized affinity threshold. Defaults to 0.75.
-            * k (``int``): The number of K nearest neighbors that will be used to choose a label \
-                in the prediction. Defaults to 10.
-            * max_iters (``int``): Maximum number of interactions in the refinement process of \
-                the ABR set exposed to aᵢ. Defaults to 100.
-            * resource_amplified (``float``): Resource consumption amplifier is multiplied with \
-                the incentive to subtract resources. Defaults to 1.0 without amplification.
-            * metric (Literal["manhattan", "minkowski", "euclidean"]): Way to calculate the \
-                distance between the detector and the sample: \
+        * n_resources (``float``): Total amount of available resources. Defaults to 10.
+        * rate_clonal (``float``): Maximum number of possible clones of a class. This \
+            quantity is multiplied by (cell stimulus * rate_hypermutation) to define the number
+            of clones. Defaults to 10.
+        * rate_hypermutation (``int``): The rate of mutated clones derived from rate_clonal as a
+            scalar factor. Defaults to 0.75.
+        * affinity_threshold_scalar (``float``): Normalized affinity threshold. Defaults to 0.75.
+        * k (``int``): The number of K nearest neighbors that will be used to choose a label \
+            in the prediction. Defaults to 10.
+        * max_iters (``int``): Maximum number of interactions in the refinement process of \
+            the ABR set exposed to aᵢ. Defaults to 100.
+        * resource_amplified (``float``): Resource consumption amplifier is multiplied with \
+            the incentive to subtract resources. Defaults to 1.0 without amplification.
+        * metric (Literal["manhattan", "minkowski", "euclidean"]): Way to calculate the \
+            distance between the detector and the sample: \
 
-                * ``'Euclidean'`` ➜ The calculation of the distance is given by the expression: \
-                √( (x₁ – x₂)² + (y₁ – y₂)² + ... + (yn – yn)²).
-                * ``'minkowski'`` ➜ The calculation of the distance is given by the expression: \
-                ( |X₁ – Y₁|p + |X₂ – Y₂|p + ... + |Xn – Yn|p) ¹/ₚ.
-                * ``'manhattan'`` ➜ The calculation of the distance is given by the expression: \
-                ( |x₁ – x₂| + |y₁ – y₂| + ... + |yn – yn|). \
-                Defaults to "Euclidean".
-                
-            * algorithm (Literal["continuous-features", "binary-features"]): [description]. \
-                Defaults to "continuous-features".
-            * seed (int): Seed for the random generation of detector values. Defaults to None.
+            * ``'Euclidean'`` ➜ The calculation of the distance is given by the expression: \
+            √( (x₁ – x₂)² + (y₁ – y₂)² + ... + (yn – yn)²).
+            * ``'minkowski'`` ➜ The calculation of the distance is given by the expression: \
+            ( |X₁ – Y₁|p + |X₂ – Y₂|p + ... + |Xn – Yn|p) ¹/ₚ.
+            * ``'manhattan'`` ➜ The calculation of the distance is given by the expression: \
+            ( |x₁ – x₂| + |y₁ – y₂| + ... + |yn – yn|). \
+            Defaults to "Euclidean".
+            
+        * algorithm (Literal["continuous-features", "binary-features"]): [description]. \
+            Defaults to "continuous-features".
+        * seed (int): Seed for the random generation of detector values. Defaults to None.
 
-            - ``**kwargs``:
-                    - p (``float``): Este parâmetro armazena o valor de ``p`` utilizada na distância \
-                        de Minkowski. O padrão é ``2``, o que significa distância euclidiana normalizada. \
-                        Diferentes valores de p levam a diferentes variantes da distância de Minkowski \
-                        [saiba mais](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.minkowski.html).
+        - ``**kwargs``:
+                - p (``float``): Este parâmetro armazena o valor de ``p`` utilizada na distância \
+                    de Minkowski. O padrão é ``2``, o que significa distância euclidiana normalizada. \
+                    Diferentes valores de p levam a diferentes variantes da distância de Minkowski \
+                    [saiba mais](https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.minkowski.html).
         
         ----
         
