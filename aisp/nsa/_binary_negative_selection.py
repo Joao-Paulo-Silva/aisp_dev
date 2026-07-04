@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from numbers import Real
 from typing import Dict, Literal, Optional, Union
 
 import numpy as np
@@ -16,7 +17,7 @@ from ..utils.validation import (
     check_array_type,
     check_shape_match,
     check_binary_array,
-    check_feature_dimension,
+    check_feature_dimension, validate_parameters, positive, choice, between, optional, is_type,
 )
 
 
@@ -96,6 +97,16 @@ class BNSA(BaseClassifier):
     ['non-self' 'self']
     """
 
+    @validate_parameters(
+        N=(is_type(int), positive),
+        aff_thresh=(is_type(Real), between(0, 1)),
+        max_discards=(is_type(int), positive),
+        seed=optional((is_type(int), positive)),
+        no_label_sample_selection=(
+            is_type(str),
+            choice(["max_average_difference", "max_nearest_difference"])
+        ),
+    )
     def __init__(
         self,
         N: int = 100,
@@ -106,20 +117,16 @@ class BNSA(BaseClassifier):
             "max_average_difference", "max_nearest_difference"
         ] = "max_average_difference",
     ):
-        self.N: int = sanitize_param(N, 100, lambda x: x > 0)
-        self.aff_thresh: float = sanitize_param(aff_thresh, 0.1, lambda x: 0 < x < 1)
-        self.max_discards: int = sanitize_param(max_discards, 1000, lambda x: x > 0)
+        self.N: int = N
+        self.aff_thresh: float = aff_thresh
+        self.max_discards: int = max_discards
 
-        self.seed: Optional[int] = sanitize_seed(seed)
+        self.seed: Optional[int] = seed
 
         if self.seed is not None:
             np.random.seed(seed)
 
-        self.no_label_sample_selection: str = sanitize_param(
-            no_label_sample_selection,
-            "max_average_difference",
-            lambda x: x == "max_nearest_difference",
-        )
+        self.no_label_sample_selection: str = no_label_sample_selection
 
         self.classes: Optional[npt.NDArray] = None
         self._detectors: Optional[dict] = None
