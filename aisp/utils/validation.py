@@ -202,10 +202,16 @@ def choice(choices: Collection):
     return validator
 
 
-def optional(validator: Callable[[Any, str], Any]):
+def optional(validator: Callable[[Any, str], Any] | Collection[Callable[[Any, str], Any]]):
     def validate(arg, name: str):
         if arg is None:
             return None
+        if isinstance(validator, (list, tuple)):
+            for fn in validator:
+                arg = fn(arg, name)
+
+            return arg
+
         return validator(arg, name)
 
     return validate
