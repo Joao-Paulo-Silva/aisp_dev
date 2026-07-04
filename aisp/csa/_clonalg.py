@@ -9,7 +9,6 @@ from typing import Optional, Callable, Dict, Literal, List
 import numpy as np
 import numpy.typing as npt
 
-from ..utils.validation import validate_parameters, is_type, positive, between, choice, optional
 from ..base import BaseOptimizer
 from ..base.immune.cell import Antibody
 from ..base.immune.mutation import (
@@ -21,8 +20,9 @@ from ..base.immune.mutation import (
 from ..base.immune.populations import generate_random_antibodies
 from ..utils.display import ProgressTable
 from ..utils.random import set_seed_numba
-from ..utils.sanitizers import sanitize_seed, sanitize_param, sanitize_bounds
+from ..utils.sanitizers import sanitize_bounds
 from ..utils.types import FeatureTypeAll
+from ..utils.validation import validate_parameters, is_type, positive, choice, optional
 
 
 class Clonalg(BaseOptimizer):
@@ -112,7 +112,7 @@ class Clonalg(BaseOptimizer):
         problem_size=(is_type(int), positive),
         N=(is_type(int), positive),
         rate_clonal=(is_type(int), positive),
-        rate_hypermutation=(is_type(float), positive),
+        rate_hypermutation=(is_type(Real), positive),
         n_diversity_injection=(is_type(int), positive),
         selection_size=(is_type(int), positive),
         feature_type=(

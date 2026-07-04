@@ -23,7 +23,6 @@ from ..utils.display import ProgressBar
 from ..utils.distance import hamming, compute_metric_distance, get_metric_code
 from ..utils.multiclass import predict_knn_affinity
 from ..utils.random import set_seed_numba
-from ..utils.sanitizers import sanitize_choice, sanitize_param, sanitize_seed
 from ..utils.types import FeatureType, MetricType
 from ..utils.validation import (
     detect_vector_data_type,

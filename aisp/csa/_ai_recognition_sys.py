@@ -118,14 +118,14 @@ class AIRS(BaseClassifier):
     """
 
     @validate_parameters(
-        n_resources=(is_type(float), positive),
+        n_resources=(is_type(Real), positive),
         rate_clonal=(is_type(int), positive),
         rate_mc_init=(is_type(Real), between(0, 1)),
-        rate_hypermutation=(is_type(float), positive),
-        affinity_threshold_scalar=(is_type(float), positive),
+        rate_hypermutation=(is_type(Real), positive),
+        affinity_threshold_scalar=(is_type(Real), positive),
         k=(is_type(int), positive),
         max_iters=(is_type(int), positive),
-        resource_amplified=(is_type(float), positive),
+        resource_amplified=(is_type(Real), positive),
         metric=(
             is_type(str),
             choice(["manhattan", "minkowski", "euclidean"])

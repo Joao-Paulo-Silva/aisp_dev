@@ -138,7 +138,7 @@ class RNSA(BaseClassifier):
     @validate_parameters(
         N=(is_type(int), positive),
         r=(is_type(Real), positive),
-        rs=(is_type(Real), positive),
+        r_s=(is_type(Real), positive),
         k=(is_type(int), positive),
         metric=(
             is_type(str),
