@@ -172,67 +172,79 @@ def _validation_error(name, expected, value):
     )
 
 
-def positive(arg: Real, name: str):
-    if arg <= 0:
-        _validation_error(name, "must be positive", arg)
-    return arg
+def positive(value: Real, name: str):
+    """Valida se o valor é positivo."""
+    if value <= 0:
+        _validation_error(name, "must be positive", value)
+    return value
 
 
-def non_negative(arg: Real, name):
-    if arg < 0:
-        _validation_error(name, "must be non-negative", arg)
-    return arg
+def non_negative(value: Real, name):
+    """Valida se o valor é maior ou igual a zero."""
+    if value < 0:
+        _validation_error(name, "must be non-negative", value)
+    return value
 
 
 def between(low: Real, high: Real):
-    def validator(arg: Real, name: str):
-        if not low <= arg <= high:
-            _validation_error(name, f"a value in [{low}, {high}]", arg)
-        return arg
+    """Cria um validador que verifica se um valor pertence a um intervalo."""
+    def validator(value: Real, name: str):
+        """Valida se o valor está no intervalo definido."""
+        if not low <= value <= high:
+            _validation_error(name, f"a value in [{low}, {high}]", value)
+        return value
 
     return validator
 
 
 def choice(choices: Collection):
-    def validator(arg, name: str):
-        if arg not in choices:
-            _validation_error(name, f"one of {tuple(choices)}", arg)
-        return arg
+    """Cria um validador que verifica se o valor pertence a um grupo."""
+    def validator(value, name: str):
+        """Valida se o valor esta no grupo de valores permitidos."""
+        if value not in choices:
+            _validation_error(name, f"one of {tuple(choices)}", value)
+        return value
 
     return validator
 
 
 def optional(validator: Callable[[Any, str], Any] | Collection[Callable[[Any, str], Any]]):
-    def validate(arg, name: str):
-        if arg is None:
+    """Torna um validadores opcionais."""
+    def validate(value, name: str):
+        """Aplica a validação quando o valor não é None."""
+        if value is None:
             return None
         if isinstance(validator, (list, tuple)):
             for fn in validator:
-                arg = fn(arg, name)
+                value = fn(value, name)
 
-            return arg
+            return value
 
-        return validator(arg, name)
+        return validator(value, name)
 
     return validate
 
 
 def is_type(expected_type):
-    def validate(arg, name: str):
-        if not isinstance(arg, expected_type):
+    """Cria um validador que verifica o tipo."""
+    def validate(value, name: str):
+        """Valida se o valor possuir o tipo esperado."""
+        if not isinstance(value, expected_type):
             if isinstance(expected_type, (tuple, list)):
                 expected = ', '.join(t.__name__ for t in expected_type)
             else:
                 expected = expected_type.__name__
-            raise TypeError(f"{name} must be of type {expected} got {type(arg).__name__}")
+            raise TypeError(f"{name} must be of type {expected} got {type(value).__name__}")
 
-        return arg
+        return value
 
     return validate
 
 
 def validate_parameters(**validators):
+    """Cria um decorador para validar automaticamente os parâmetros de uma classe."""
     def decorator(func):
+        """Decora uma função para validação."""
         sig = inspect.signature(func)
         valid_params = sig.parameters.keys()
         unknown = {k: v for k, v in validators.items() if k not in valid_params}
@@ -241,6 +253,7 @@ def validate_parameters(**validators):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+            """Aplica as validações configuradas."""
             bound = sig.bind(*args, **kwargs)
             bound.apply_defaults()
 
