@@ -189,6 +189,7 @@ def between(low: Real, high: Real):
         if not low <= arg <= high:
             _validation_error(name, f"a value in [{low}, {high}]", arg)
         return arg
+
     return validator
 
 
@@ -209,14 +210,6 @@ def optional(validator: Callable[[Any, str], Any]):
 
     return validate
 
-def compose(*validators):
-    def validate(arg, name: str):
-        for validator in validators:
-            arg = validator(arg, name)
-        return arg
-
-    return validate
-
 
 def validate_parameters(**validators):
     def decorator(func):
@@ -233,11 +226,15 @@ def validate_parameters(**validators):
 
             for name, validator in validators.items():
                 value = bound.arguments[name]
-                bound.arguments[name] = validator(value, name)
+                if isinstance(validator, (list, tuple)):
+                    for fn in validator:
+                        value = fn(value, name)
+                else:
+                    value = validator(value, name)
+                bound.arguments[name] = value
 
             return func(*bound.args, **bound.kwargs)
 
         return wrapper
 
     return decorator
-
