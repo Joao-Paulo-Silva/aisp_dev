@@ -211,6 +211,20 @@ def optional(validator: Callable[[Any, str], Any]):
     return validate
 
 
+def is_type(expected_type):
+    def validate(arg, name: str):
+        if not isinstance(arg, expected_type):
+            if isinstance(expected_type, (tuple, list)):
+                expected = ', '.join(t.__name__ for t in expected_type)
+            else:
+                expected = expected_type.__name__
+            raise TypeError(f"{name} must be of type {expected} got {type(arg).__name__}")
+
+        return arg
+
+    return validate
+
+
 def validate_parameters(**validators):
     def decorator(func):
         sig = inspect.signature(func)
