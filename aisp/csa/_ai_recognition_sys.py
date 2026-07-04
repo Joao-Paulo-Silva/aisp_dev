@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from numbers import Real
 from operator import attrgetter
 from typing import List, Optional, Dict, Tuple, Any, Union
 
@@ -18,7 +19,6 @@ from ..utils.display import ProgressBar
 from ..utils.distance import hamming, compute_metric_distance, get_metric_code
 from ..utils.multiclass import predict_knn_affinity
 from ..utils.random import set_seed_numba
-from ..utils.sanitizers import sanitize_param, sanitize_seed, sanitize_choice
 from ..utils.types import FeatureType, MetricType
 from ..utils.validation import (
     detect_vector_data_type,
@@ -26,6 +26,12 @@ from ..utils.validation import (
     check_shape_match,
     check_feature_dimension,
     check_binary_array,
+    positive,
+    is_type,
+    between,
+    choice,
+    optional,
+    validate_parameters,
 )
 
 
@@ -111,6 +117,22 @@ class AIRS(BaseClassifier):
     [0 1]
     """
 
+    @validate_parameters(
+        n_resources=(is_type(float), positive),
+        rate_clonal=(is_type(int), positive),
+        rate_mc_init=(is_type(Real), between(0, 1)),
+        rate_hypermutation=(is_type(float), positive),
+        affinity_threshold_scalar=(is_type(float), positive),
+        k=(is_type(int), positive),
+        max_iters=(is_type(int), positive),
+        resource_amplified=(is_type(float), positive),
+        metric=(
+            is_type(str),
+            choice(["manhattan", "minkowski", "euclidean"])
+        ),
+        seed=optional((is_type(int), positive)),
+        p=(is_type(Real), positive),
+    )
     def __init__(
         self,
         n_resources: float = 10,
@@ -125,32 +147,22 @@ class AIRS(BaseClassifier):
         seed: Optional[int] = None,
         p: float = 2.0,
     ) -> None:
-        self.n_resources: float = sanitize_param(n_resources, 10, lambda x: x >= 1)
-        self.rate_mc_init: float = sanitize_param(
-            rate_mc_init, 0.2, lambda x: 0 < x <= 1
-        )
-        self.rate_clonal: int = sanitize_param(rate_clonal, 10, lambda x: x > 0)
-        self.rate_hypermutation: float = sanitize_param(
-            rate_hypermutation, 0.75, lambda x: x > 0
-        )
-        self.affinity_threshold_scalar: float = sanitize_param(
-            affinity_threshold_scalar, 0.75, lambda x: x > 0
-        )
-        self.resource_amplified: float = sanitize_param(
-            resource_amplified, 1, lambda x: x > 1
-        )
-        self.k: int = sanitize_param(k, 3, lambda x: x > 0)
-        self.max_iters: int = sanitize_param(max_iters, 100, lambda x: x > 0)
-        self.seed: Optional[int] = sanitize_seed(seed)
+        self.n_resources: float = n_resources
+        self.rate_mc_init: float = rate_mc_init
+        self.rate_clonal: int = rate_clonal
+        self.rate_hypermutation: float = rate_hypermutation
+        self.affinity_threshold_scalar: float = affinity_threshold_scalar
+        self.resource_amplified: float = resource_amplified
+        self.k: int = k
+        self.max_iters: int = max_iters
+        self.metric = metric
+        self.seed: Optional[int] = seed
         if self.seed is not None:
             np.random.seed(self.seed)
             set_seed_numba(self.seed)
+        self.p: float = p
 
         self._feature_type: FeatureType = "continuous-features"
-
-        self.metric = sanitize_choice(metric, ["manhattan", "minkowski"], "euclidean")
-
-        self.p: float = p
 
         self._cells_memory: Optional[Dict[str | int, list[BCell]]] = None
         self._all_class_cell_vectors: Optional[List[Tuple[Any, np.ndarray]]] = None

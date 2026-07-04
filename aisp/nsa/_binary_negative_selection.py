@@ -12,7 +12,7 @@ from ._base import check_detector_bnsa_validity, bnsa_class_prediction
 from ..base import BaseClassifier
 from ..exceptions import MaxDiscardsReachedError, ModelNotFittedError
 from ..utils.display import ProgressBar
-from ..utils.sanitizers import sanitize_seed, sanitize_param
+from ..utils.random import set_seed_numba
 from ..utils.validation import (
     check_array_type,
     check_shape_match,
@@ -123,14 +123,15 @@ class BNSA(BaseClassifier):
 
         self.seed: Optional[int] = seed
 
-        if self.seed is not None:
-            np.random.seed(seed)
-
         self.no_label_sample_selection: str = no_label_sample_selection
 
         self.classes: Optional[npt.NDArray] = None
         self._detectors: Optional[dict] = None
         self._detectors_stack: Optional[npt.NDArray] = None
+
+        if self.seed is not None:
+            np.random.seed(seed)
+            set_seed_numba(self.seed)
 
     @property
     def detectors(self) -> Optional[Dict[str | int, npt.NDArray[np.bool_]]]:

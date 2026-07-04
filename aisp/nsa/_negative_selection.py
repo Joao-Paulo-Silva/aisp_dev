@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from numbers import Real
 from typing import Dict, Literal, Optional, Union, List
 
 import numpy as np
@@ -18,12 +19,16 @@ from ..utils.distance import (
     compute_metric_distance,
 )
 from ..utils.random import set_seed_numba
-from ..utils.sanitizers import sanitize_seed, sanitize_choice, sanitize_param
 from ..utils.validation import (
     check_array_type,
     check_shape_match,
     check_feature_dimension,
     check_value_range,
+    validate_parameters,
+    positive,
+    is_type,
+    optional,
+    choice,
 )
 
 
@@ -130,6 +135,23 @@ class RNSA(BaseClassifier):
     ['non-self' 'non-self' 'non-self' 'non-self' 'non-self']
     """
 
+    @validate_parameters(
+        N=(is_type(int), positive),
+        r=(is_type(Real), positive),
+        rs=(is_type(Real), positive),
+        k=(is_type(int), positive),
+        metric=(
+            is_type(str),
+            choice(["manhattan", "minkowski", "euclidean"])
+        ),
+        max_discards=(is_type(int), positive),
+        seed=optional((is_type(int), positive)),
+        algorithm=(
+            is_type(str),
+            choice(["default-NSA", "V-detector"])
+        ),
+        p=(is_type(Real), positive),
+    )
     def __init__(
         self,
         N: int = 100,
@@ -144,28 +166,24 @@ class RNSA(BaseClassifier):
         non_self_label: str = 'non-self',
         cell_bounds: bool = False
     ):
-        self.metric: str = sanitize_choice(
-            metric, ["manhattan", "minkowski"], "euclidean"
-        )
-        self.seed: Optional[int] = sanitize_seed(seed)
-        if self.seed is not None:
-            np.random.seed(seed)
-            set_seed_numba(self.seed)
-        self.k: int = sanitize_param(k, 1, lambda x: x > 1)
-        self.N: int = sanitize_param(N, 100, lambda x: x >= 1)
-        self.r: float = sanitize_param(r, 0.05, lambda x: x > 0)
-        self.r_s: float = sanitize_param(r_s, 0.0001, lambda x: x > 0)
-        self.algorithm: str = sanitize_param(
-            algorithm, "default-NSA", lambda x: x == "V-detector"
-        )
-        self.max_discards: int = sanitize_param(max_discards, 1000, lambda x: x > 0)
-
+        self.metric: str = metric
+        self.seed: Optional[int] = seed
+        self.k: int = k
+        self.N: int = N
+        self.r: float = r
+        self.r_s: float = r_s
+        self.algorithm: str = algorithm
+        self.max_discards: int = max_discards
         self.p: float = p
         self.cell_bounds: bool = cell_bounds
         self.non_self_label: str = non_self_label
 
         self._detectors: Optional[Dict[str | int, list[Detector]]] = None
         self.classes: Optional[npt.NDArray] = None
+
+        if self.seed is not None:
+            np.random.seed(seed)
+            set_seed_numba(self.seed)
 
     @property
     def detectors(self) -> Optional[Dict[str | int, list[Detector]]]:

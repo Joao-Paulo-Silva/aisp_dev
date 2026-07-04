@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import heapq
+from numbers import Real
 from typing import Optional, Callable, Dict, Literal, List
 
 import numpy as np
 import numpy.typing as npt
 
+from ..utils.validation import validate_parameters, is_type, positive, between, choice, optional
 from ..base import BaseOptimizer
 from ..base.immune.cell import Antibody
 from ..base.immune.mutation import (
@@ -106,6 +108,22 @@ class Clonalg(BaseOptimizer):
     Best cost: 0.02623036956750724
     """
 
+    @validate_parameters(
+        problem_size=(is_type(int), positive),
+        N=(is_type(int), positive),
+        rate_clonal=(is_type(int), positive),
+        rate_hypermutation=(is_type(float), positive),
+        n_diversity_injection=(is_type(int), positive),
+        selection_size=(is_type(int), positive),
+        feature_type=(
+            is_type(str),
+            choice([
+                "binary-features", "continuous-features", "ranged-features", "permutation-features"
+            ])
+        ),
+        mode=(is_type(str), choice(["min", "max"])),
+        seed=optional((is_type(int), positive))
+    )
     def __init__(
         self,
         problem_size: int,
@@ -121,34 +139,21 @@ class Clonalg(BaseOptimizer):
         seed: Optional[int] = None,
     ):
         super().__init__()
-        self.problem_size = sanitize_param(problem_size, 1, lambda x: x > 0)
-        self.N: int = sanitize_param(N, 50, lambda x: x > 0)
-        self.rate_clonal: int = sanitize_param(rate_clonal, 10, lambda x: x > 0)
-        self.rate_hypermutation: np.float64 = np.float64(
-            sanitize_param(
-                rate_hypermutation, 1.0, lambda x: x > 0
-            )
-        )
-        self.n_diversity_injection: int = sanitize_param(
-            n_diversity_injection, 5, lambda x: x > 0
-        )
-        self.selection_size: int = sanitize_param(
-            selection_size, 5, lambda x: x > 0
-        )
+        self.problem_size = problem_size
+        self.N: int = N
+        self.rate_clonal: int = rate_clonal
+        self.rate_hypermutation: float = rate_hypermutation
+        self.n_diversity_injection: int = n_diversity_injection
+        self.selection_size: int = selection_size
         self._affinity_function = affinity_function
         self.feature_type: FeatureTypeAll = feature_type
+        self.mode: Literal["min", "max"] = mode
+        self.seed: Optional[int] = seed
 
         self._bounds: Optional[Dict] = None
         self._bounds_extend_cache: Optional[np.ndarray] = None
         self.bounds = bounds
 
-        self.mode: Literal["min", "max"] = sanitize_param(
-            mode,
-            "min",
-            lambda x: x == "max"
-        )
-
-        self.seed: Optional[int] = sanitize_seed(seed)
         if self.seed is not None:
             np.random.seed(self.seed)
             set_seed_numba(self.seed)

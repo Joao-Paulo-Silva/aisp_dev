@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from numbers import Real
 from typing import Optional, Dict, List, Tuple, Union
 
 import numpy as np
@@ -28,7 +29,7 @@ from ..utils.validation import (
     detect_vector_data_type,
     check_array_type,
     check_feature_dimension,
-    check_binary_array,
+    check_binary_array, validate_parameters, is_type, positive, choice, optional, non_negative,
 )
 
 
@@ -124,11 +125,27 @@ class AiNet(BaseClusterer):
     [0 1]
     """
 
+    @validate_parameters(
+        N=(is_type(int), positive),
+        n_clone=(is_type(int), positive),
+        top_clonal_memory_size=optional((is_type(int), positive)),
+        affinity_threshold=(is_type(Real), positive),
+        suppression_threshold=(is_type(Real), positive),
+        mst_inconsistency_factor=(is_type(Real), non_negative),
+        max_iterations=(is_type(int), positive),
+        k=(is_type(int), positive),
+        metric=(
+            is_type(str),
+            choice(["manhattan", "minkowski", "euclidean"])
+        ),
+        seed=optional((is_type(int), positive)),
+        p=(is_type(Real), positive),
+    )
     def __init__(
         self,
         N: int = 50,
         n_clone: int = 10,
-        top_clonal_memory_size: int = 5,
+        top_clonal_memory_size: Optional[int] = 5,
         n_diversity_injection: int = 5,
         affinity_threshold: float = 0.5,
         suppression_threshold: float = 0.5,
@@ -140,39 +157,23 @@ class AiNet(BaseClusterer):
         use_mst_clustering: bool = True,
         p: float = 2.0
     ):
-        self.N: int = sanitize_param(N, 50, lambda x: x > 0)
-        self.n_clone: int = sanitize_param(n_clone, 10, lambda x: x > 0)
-
-        self.top_clonal_memory_size: Optional[int] = None
-        if top_clonal_memory_size is not None:
-            self.top_clonal_memory_size = sanitize_param(
-                top_clonal_memory_size, 5, lambda x: x > 0
-            )
-
-        self.n_diversity_injection: int = sanitize_param(
-            n_diversity_injection, 5, lambda x: x > 0
-        )
-        self.affinity_threshold: float = sanitize_param(
-            affinity_threshold, 0.5, lambda x: x > 0
-        )
-        self.suppression_threshold: float = sanitize_param(
-            suppression_threshold, 0.5, lambda x: x > 0
-        )
-        self.mst_inconsistency_factor: float = sanitize_param(
-            mst_inconsistency_factor, 2, lambda x: x >= 0
-        )
-        self.max_iterations: int = sanitize_param(max_iterations, 10, lambda x: x > 0)
-        self.k: int = sanitize_param(k, 1, lambda x: x > 0)
-        self.seed: Optional[int] = sanitize_seed(seed)
+        self.N: int = N
+        self.n_clone: int = n_clone
+        self.top_clonal_memory_size: Optional[int] = top_clonal_memory_size
+        self.n_diversity_injection: int = n_diversity_injection
+        self.affinity_threshold: float = affinity_threshold
+        self.suppression_threshold: float = suppression_threshold
+        self.mst_inconsistency_factor: float = mst_inconsistency_factor
+        self.max_iterations: int = max_iterations
+        self.k: int = k
+        self.seed: Optional[int] = seed
         self.use_mst_clustering: bool = use_mst_clustering
         if self.seed is not None:
             np.random.seed(self.seed)
             set_seed_numba(self.seed)
 
         self._feature_type: FeatureType = "continuous-features"
-        self.metric: str = sanitize_choice(
-            metric, ["euclidean", "manhattan", "minkowski"], "euclidean"
-        )
+        self.metric: str = metric
 
         self.p: float = p
         self._metric_params = {}
